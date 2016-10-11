@@ -7,8 +7,8 @@
 
 #define CE_PIN 2
 #define CSN_PIN 3
-#define ONE_WIRE_BUS 1
-#define SENSOR_POWER 0
+#define ONE_WIRE_BUS 10
+#define SENSOR_POWER 9
 
 #define adc_disable() (ADCSRA &= ~(1<<ADEN)) // disable ADC (before power-off)
 #define adc_enable()  (ADCSRA |=  (1<<ADEN)) // re-enable ADC
