@@ -5,21 +5,23 @@
 #include <avr/power.h>
 #include <avr/wdt.h>
 
-#define CE_PIN 2
+#define CE_PIN 7
 #define CSN_PIN 3
 #define ONE_WIRE_BUS 10
 #define SENSOR_POWER 9
 
 #define adc_disable() (ADCSRA &= ~(1<<ADEN)) // disable ADC (before power-off)
 #define adc_enable()  (ADCSRA |=  (1<<ADEN)) // re-enable ADC
-#define SLEEP_CYCLES 1
+#define SLEEP_CYCLES 16
+
+volatile short sleep_cycles_remaining = SLEEP_CYCLES;
 
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
 
 RF24 radio(CE_PIN, CSN_PIN);
 
-byte addresses[][6] = {"1Node","2Node","3Node"};
+byte address[6] = "2Node";
 
 struct SensorData {
     float temp;
@@ -48,9 +50,6 @@ long readVcc() {
    result = 1126400L / result; // Back-calculate Vcc in mV
    return result;
 } 
-
-const short sleep_cycles_per_transmission = 4;
-volatile short sleep_cycles_remaining = sleep_cycles_per_transmission;
 
 void setup_watchdog(uint8_t prescalar)
 {
@@ -82,17 +81,13 @@ void setup(void)
   pinMode(SENSOR_POWER, OUTPUT);
   digitalWrite(SENSOR_POWER, LOW);
   
-  delay(100);
-  
   set_sleep_mode(SLEEP_MODE_PWR_DOWN);
-
   setup_watchdog(WDTO_8S);
   
-  radio.begin(); // Start up the radio
-  radio.setAutoAck(1); // Ensure autoACK is enabled
-  radio.setRetries(15,15); // Max delay between retries & number of retries
-  radio.openWritingPipe(addresses[2]); // Write to device address '2Node'
-  radio.openReadingPipe(1,addresses[0]); // Read on pipe 1 for device address '1Node'
+  radio.begin();
+  radio.setAutoAck(1);
+  radio.setRetries(15,15);
+  radio.openWritingPipe(address);
   radio.powerDown();
 }
 
@@ -102,19 +97,16 @@ void loop(void)
   digitalWrite(SENSOR_POWER, HIGH);
   delay(5);
   sensors.begin();
-  delay(5);
   sensors.requestTemperatures(); // Send the command to get temperatures
   sensorData.temp = sensors.getTempCByIndex(0);
   digitalWrite(SENSOR_POWER, LOW);
 
   radio.powerUp();
-  
   radio.write( &sensorData, sizeof(sensorData) );
-  
   radio.powerDown();
 
   while( sleep_cycles_remaining ){
     do_sleep();
   }
-  sleep_cycles_remaining = sleep_cycles_per_transmission;
+  sleep_cycles_remaining = SLEEP_CYCLES;
 }
