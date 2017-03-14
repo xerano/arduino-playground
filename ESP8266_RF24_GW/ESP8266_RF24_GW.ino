@@ -1,5 +1,8 @@
+
+//https://github.com/bblanchon/ArduinoJson
 #include <ArduinoJson.h>
 #include <SPI.h>
+//https://github.com/knolleary/pubsubclient
 #include <PubSubClient.h>
 #include <ESP8266WiFi.h>
 #include "RF24.h"
@@ -78,6 +81,8 @@ void setup() {
   radio.openReadingPipe(4,addresses[4]);
   radio.openReadingPipe(5,addresses[5]);
 
+  radio.setDataRate(RF24_250KBPS);
+  
   radio.printDetails();
   
   radio.startListening();

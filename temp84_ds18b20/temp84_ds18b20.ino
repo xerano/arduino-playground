@@ -88,6 +88,7 @@ void setup(void)
   radio.setAutoAck(1);
   radio.setRetries(15,15);
   radio.openWritingPipe(address);
+  radio.setDataRate(RF24_250KBPS);
   radio.powerDown();
 }
 
