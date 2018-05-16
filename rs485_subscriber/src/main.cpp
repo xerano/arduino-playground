@@ -6,6 +6,11 @@
 
 SoftwareSerial mySerial(10, 11);
 
+struct SensorData {
+    int hum;
+    int temp;
+} sensor_data;
+
 void setup() {
     pinMode(3, OUTPUT);
     digitalWrite(3, LOW);
@@ -17,8 +22,13 @@ byte buffer[4];
 
 void loop() {
     if(mySerial.available()){
-        Serial.print("Received: ");
-        String recv = mySerial.readString();
-        Serial.println(recv);
+        while(mySerial.peek() > -1){
+            mySerial.readBytes((uint8_t *) &sensor_data, sizeof(sensor_data));
+        }
+        
+        Serial.print("Temp:");
+        Serial.print(sensor_data.temp);
+        Serial.print(" Humidity:");
+        Serial.println(sensor_data.hum);
     }
 }
