@@ -8,10 +8,32 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
-    <title>Hello, world!</title>
+    <title>FAN_CTRL</title>
   </head>
   <body>
-    <h1>Hello, world!</h1>
+    <nav class="navbar navbar-dark bg-dark">
+	<a class="navbar-brand" href="#">FAN_CTRL</a>
+    </nav>
+    <div class="container">
+      <form>
+          <table class="table table-bordered">
+            <tr>
+              <td>FAN0</td>
+              <td><input type="text" class="form-control" id="fan_0_pwm" aria-describedby="emailHelp" placeholder="speed fan 0"></td>
+              <td><button type="button" class="btn btn-primary" onclick="setSpeed(0)">Set</button></td>
+              <td>FAN1</td>
+              <td><input type="text" class="form-control" id="fan_1_pwm" aria-describedby="emailHelp" placeholder="speed fan 1"></td>
+              <td><button type="button" class="btn btn-primary" onclick="setSpeed(1)">Set</button></td>
+            </tr>
+            <tr>
+              <td>FAN0 current speed</td>
+              <td colspan="2" id="fan_speed_0"></td>
+              <td>FAN1 current speed</td>
+              <td colspan="2" id="fan_speed_1"></td>
+            </tr>
+          </table>
+      </form>
+    </div>
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
