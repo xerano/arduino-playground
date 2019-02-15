@@ -11,6 +11,8 @@
     <script>
       function onload(){
         setInterval(update, 1000);
+        startSocket();
+        startEvents();
       }
 
       function update() {
@@ -28,6 +30,54 @@
         });
       }
 
+      function startSocket(){
+      ws = new WebSocket('ws://'+document.location.host+'/ws',['arduino']);
+      ws.binaryType = "arraybuffer";
+      ws.onopen = function(e){
+        addMessage("Connected");
+      };
+      ws.onclose = function(e){
+        addMessage("Disconnected");
+      };
+      ws.onerror = function(e){
+        console.log("ws error", e);
+        addMessage("Error");
+      };
+      ws.onmessage = function(e){
+        var msg = "";
+        if(e.data instanceof ArrayBuffer){
+          msg = "BIN:";
+          var bytes = new Uint8Array(e.data);
+          for (var i = 0; i < bytes.length; i++) {
+            msg += String.fromCharCode(bytes[i]);
+          }
+        } else {
+          msg = "TXT:"+e.data;
+        }
+        addMessage(msg);
+      };
+    }
+    function startEvents(){
+      var es = new EventSource('/events');
+      es.onopen = function(e) {
+        addMessage("Events Opened");
+      };
+      es.onerror = function(e) {
+        if (e.target.readyState != EventSource.OPEN) {
+          addMessage("Events Closed");
+        }
+      };
+      es.onmessage = function(e) {
+        addMessage("Event: " + e.data);
+      };
+      es.addEventListener('ota', function(e) {
+        addMessage("Event[ota]: " + e.data);
+      }, false);
+    }
+
+    function addMessage(msg){
+      $("#messages").html($("#messages").html() + "<br>" + msg);
+    }
     </script>
   </head>
   <body onload="onload()">
@@ -54,7 +104,7 @@
           </table>
       </form>
     </div>
-
+    <div id="messages"></div>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script  src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>

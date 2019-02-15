@@ -101,6 +101,7 @@ int last = 0;
 int pin;
 int level;
 int mode;
+int pulses[2] = {0, 0};
 
 void tacho_0_Pulse();
 void tacho_1_Pulse();
@@ -136,17 +137,16 @@ void setup() {
   server.addHandler(&ws);
 
   events.onConnect([](AsyncEventSourceClient *client){
-    client->send("hello!",NULL,millis(),1000);
+    String data = "{\"fan0\":" + String(pulses[0]) + ", \"fan1\": " + String(pulses[1]) + "}";
+    client->send(data.c_str(), NULL, millis(), 1000);
   });
   server.addHandler(&events);
 }
 
-int pulses[2];
-
 void loop() {
   int now = millis();
 
-  if(now - last > 2000){
+  if(now - last > 1000){
     last = now;
     pulses[0] = tacho_0_pulses;
     pulses[1] = tacho_1_pulses;
