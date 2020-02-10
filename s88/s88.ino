@@ -1,5 +1,4 @@
-
-int latchPin = 8;
+int loadPin = 8;
 int dataPin = 9;
 int clockPin = 7;
 
@@ -7,7 +6,7 @@ byte switchVar1 = 72;  //01001000
 
 void setup() {
   Serial.begin(9600);
-  pinMode(latchPin, OUTPUT);
+  pinMode(loadPin, OUTPUT);
   pinMode(clockPin, OUTPUT);
   pinMode(dataPin, INPUT);
 }
@@ -16,15 +15,18 @@ void loop() {
 
   //Pulse the latch pin:
   //set it to 1 to collect parallel data
-  digitalWrite(latchPin,1);
-  digitalWrite(clockPin,1);
+  digitalWrite(loadPin,HIGH);
+  delayMicroseconds(200);
+  digitalWrite(clockPin,HIGH);
   //set it to 1 to collect parallel data, wait
-  delayMicroseconds(20);
-  digitalWrite(clockPin,1);
-  delayMicroseconds(20);
+  delayMicroseconds(200);
+  digitalWrite(clockPin, LOW);
+  delayMicroseconds(600);
   
   //set it to 0 to transmit data serially  
-  digitalWrite(latchPin,0);
+  digitalWrite(loadPin, LOW);
+
+  delayMicroseconds(200);
 
   switchVar1 = shiftIn(dataPin, clockPin);
 
@@ -33,7 +35,7 @@ void loop() {
   //white space
   Serial.println("-------------------");
   //delay so all these print satements can keep up.
-  delay(500);
+  delay(10);
 }
 
 byte shiftIn(int myDataPin, int myClockPin) {
@@ -55,8 +57,8 @@ byte shiftIn(int myDataPin, int myClockPin) {
   //so that is why our function counts down
   for (i=7; i>=0; i--)
   {
-    digitalWrite(myClockPin, 1);
-    delayMicroseconds(0.2);
+    digitalWrite(myClockPin, HIGH);
+    delayMicroseconds(200);
     temp = digitalRead(myDataPin);
     if (temp) {
       pinState = 1;
@@ -74,8 +76,8 @@ byte shiftIn(int myDataPin, int myClockPin) {
     //Serial.print("     ");
     //Serial.println (myDataIn, BIN);
 
-    digitalWrite(myClockPin, 0);
-
+    digitalWrite(myClockPin, LOW);
+    delayMicroseconds(200);
   }
   //debuging print statements whitespace
   //Serial.println();
