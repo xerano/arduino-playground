@@ -79,12 +79,8 @@ byte shiftIn() {
     temp = digitalRead(S88_DATA);
     if (temp) {
       pinState = 1;
-      myDataIn = myDataIn | (1 << i);
+      myDataIn = myDataIn | (1 << i); // set corresponding bit to 1
     }
-    else {
-      pinState = 0;
-    }
-
     
     digitalWrite(S88_CLK, LOW);
     delayMicroseconds(200);
@@ -138,14 +134,14 @@ void loop() {
         break;
     }
     
-    if(cmd == 'v'){
+    if(cmd == 'v'){ // version command
       Serial.write("hsi88-arduino ", HEX);
       Serial.write('\0');
       Serial.write('\r');
     }
 
-    // return number of connected modules
-    if(cmd == 's'){
+    s
+    if(cmd == 's'){ // init and register, return number of connected modules, collect data and return states
       Serial.write('s');
       Serial.write(num_sensors);
       Serial.write('\r');
