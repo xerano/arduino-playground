@@ -1,5 +1,3 @@
-#include <SoftwareSerial.h>
-
 #define PAYLOAD_BUFFER_SIZE 32
 #define CHECK_PERIOD 1000
 
@@ -19,8 +17,6 @@ typedef struct feedback_module {
 
 const uint8_t num_modules = 3;
 FeedbackModule modules[num_modules];
-
-int incomingByte;
 
 void setup() {
 
@@ -68,8 +64,6 @@ byte shiftIn() {
   #endif
   
   int i;
-  uint8_t temp = 0;
-  uint8_t pinState;
   byte myDataIn = 0;
 
   pinMode(S88_CLK, OUTPUT);
@@ -78,12 +72,9 @@ byte shiftIn() {
   {
     digitalWrite(S88_CLK, HIGH);
     delayMicroseconds(200);
-    temp = digitalRead(S88_DATA);
-    if (temp) {
-      pinState = 1;
+    if (digitalRead(S88_DATA)) {
       myDataIn = myDataIn | (1 << i); // set corresponding bit to 1
     }
-    
     digitalWrite(S88_CLK, LOW);
     delayMicroseconds(200);
   }
