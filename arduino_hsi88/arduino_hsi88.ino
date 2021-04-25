@@ -9,14 +9,16 @@
 
 //#define DEBUG
 
-typedef struct sensor {
+
+// each module has up to 16 sensor inputs
+typedef struct feedback_module {
   uint8_t address;
   uint8_t high;   // upper byte
   uint8_t low;    // lower byte
-} Sensor;
+} FeedbackModule;
 
-const uint8_t num_sensors = 3;
-Sensor sensors[num_sensors];
+const uint8_t num_modules = 3;
+FeedbackModule modules[num_modules];
 
 int incomingByte;
 
@@ -32,10 +34,10 @@ void setup() {
   Serial.begin(9600);
   while(!Serial){};
 
-  for(uint8_t i = 0; i < num_sensors; i++){
-    sensors[i].address = i+1;
-    sensors[i].high = 0xff;
-    sensors[i].low = 0xff;
+  for(uint8_t i = 0; i < num_modules; i++){
+    modules[i].address = i+1;
+    modules[i].high = 0xff;
+    modules[i].low = 0xff;
   }
 }
 
@@ -89,21 +91,21 @@ byte shiftIn() {
   return myDataIn;
 }
 
-void readSensors() {
+void readModules() {
 
   #ifdef DEBUG
   Serial.println("Reading S88");
   #endif
   
   s88_load();
-  for(uint8_t i = 0; i < num_sensors; i++){
+  for(uint8_t i = 0; i < num_modules; i++){
     #ifdef DEBUG
     Serial.print("Reading sensor: ");
     Serial.println(i);
     #endif
     
-    sensors[i].low = shiftIn();
-    sensors[i].high = shiftIn();
+    modules[i].low = shiftIn();
+    modules[i].high = shiftIn();
     
   }
   
@@ -111,11 +113,11 @@ void readSensors() {
 
 void publishData(){
   Serial.write('i');
-  Serial.write(num_sensors); // number of modules
-  for(int i=0; i<num_sensors; i++){
-    Serial.write(sensors[i].address); // module number
-    Serial.write(sensors[i].high); // high byte
-    Serial.write(sensors[i].low); // low byte
+  Serial.write(num_modules); // number of modules
+  for(int i=0; i<num_modules; i++){
+    Serial.write(modules[i].address); // module number
+    Serial.write(modules[i].high); // high byte
+    Serial.write(modules[i].low); // low byte
   }
   Serial.write('\r');
 }
@@ -140,13 +142,13 @@ void loop() {
       Serial.write('\r');
     }
 
-    s
+    
     if(cmd == 's'){ // init and register, return number of connected modules, collect data and return states
       Serial.write('s');
-      Serial.write(num_sensors);
+      Serial.write(num_modules);
       Serial.write('\r');
 
-      readSensors();
+      readModules();
       publishData();
     }
     
@@ -154,7 +156,7 @@ void loop() {
 
   uint16_t current = millis();
   if((current - last) > 1000){
-    readSensors();
+    readModules();
     publishData();
   }
   
